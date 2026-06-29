@@ -22,6 +22,7 @@ LANGUAGES = [
     "Japanese",
     "Korean",
     "Spanish",
+    "Hindi"
 ]
 
 # Runtime buckets — user picks a preference, we map it to a minute range
