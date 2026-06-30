@@ -1,4 +1,4 @@
-from config import GENRES, LANGUAGES, RUNTIME_OPTIONS
+from config import GENRES, LANGUAGE , RUNTIME_OPTIONS
 from utils import numbered_menu, multi_select_menu
 
 def run_quiz() -> dict:
@@ -26,14 +26,14 @@ def run_quiz() -> dict:
     # Question 3
     print("\n Preferred language?")
     prefernces["language"] = numbered_menu(
-        LANGUAGES + ["any"],
+        LANGUAGE + ["any"],
         "Enter number"
     )
     
     # Question 4
     print("\n How much time do you have?")
     prefernces["runtime"] = numbered_menu(
-        ["short (under 90 min)", "medium (90-130 min)", "long (130+ min)", "any"],
+        {**RUNTIME_OPTIONS , "any" : (0, 9999)},
         "Enter number"
     )
     # Normalising the choise to match our RUNTIME_OPTIONS keys

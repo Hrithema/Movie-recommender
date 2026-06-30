@@ -1,42 +1,54 @@
 import pandas as pd
-from config import RUNTIME_OPTIONS, TOP_N_RECOMMENDATIONS
+from config import RUNTIME_OPTIONS, TOP_N, LANGUAGE, LANGUAGE_MAP
 
-def recommend(movies: pd.DataFrame, preferenes:dict) -> pd.DataFrame:
+def recommend(movies: pd.DataFrame, preferences: dict) -> pd.DataFrame:
     df = movies.copy()
-    
-    # Filtering user's preferences
-    if preferenes["type"] != "any":
-        df = df[df["type"]== preferenes["type"]]
-    
-    if preferenes["language"] != "any":
-        df = df[df["language"] == preferenes["language"]]
-        
-    runtime_key = preferenes["runtime"]
-    min_rt, max_rt = RUNTIME_OPTIONS[runtime_key]
-    df = df[(df["runtime_minutes"] >= min_rt) & (df["runtime_minutes"] <= max_rt) ]
-    
-    if preferenes["happy_ending"] != "any":
-        df = df[df["happy_ending"] == preferenes["happy_ending"]]
-    
-    if preferenes["pace"] != "any":
-        df = df[df["pace"] == preferenes["pace"]]
-    
-    # For each movie match the preferred genre get a score 1 else 0;
-    # We add this as a column so we can sort by it.
-    
-    preferred_genres = preferenes["genres"]
-    df["genre_score"] = df["genre"].apply(
-        lambda g: 1 if g in preferred_genres else 0
-    )
-    
-    # now we'll sort the list of preferred genre movies
-    # first by score then alphabetically
-    
+
+    # ── Language filter ────────────────────────────────────────────────────────
+    # Quiz returns "English" but TMDB stores "en".
+    # We use LANGUAGE_MAP to convert before comparing.
+    if preferences["language"] != "any":
+        lang_code = LANGUAGE_MAP.get(preferences["language"], "")
+        if lang_code:
+            df = df[df["language"] == lang_code]
+
+    # ── Runtime filter ─────────────────────────────────────────────────────────
+    # preferences["runtime"] is already normalised to "short"/"medium"/"long"/"any"
+    # by the split(" ")[0] line in quiz.py
+    runtime_key = preferences["runtime"]
+    if runtime_key in RUNTIME_OPTIONS:
+        min_rt, max_rt = RUNTIME_OPTIONS[runtime_key]
+        df = df[
+            (pd.to_numeric(df["runtime"], errors="coerce") >= min_rt) &
+            (pd.to_numeric(df["runtime"], errors="coerce") <= max_rt)
+        ]
+
+    # ── Genre scoring ──────────────────────────────────────────────────────────
+    # TMDB "genres" is a list e.g. ["Action", "Adventure"]
+    # We count how many of the user's preferred genres appear in each movie.
+    # A movie with 2 matching genres scores higher than one with 1 match.
+    preferred_genres = preferences.get("genres", [])
+
+    if preferred_genres:
+        df["genre_score"] = df["genres"].apply(
+            lambda g: sum(1 for genre in preferred_genres if genre in g)
+            if isinstance(g, list) else 0
+        )
+    else:
+        # User picked no genres — all movies score equally
+        df["genre_score"] = 0
+
+    # ── Note on happy_ending, family_friendly, pace ────────────────────────────
+    # These fields don't exist in TMDB or any standard dataset.
+    # We skip filtering on them for now — Phase 5 (scoring engine) is the
+    # right place to handle these via genre/keyword proxies instead.
+
+    # ── Sort and return top N ──────────────────────────────────────────────────
     df = df.sort_values(
-        by=["genre_score", "title"],
-        ascending=[False, True]
+        by=["genre_score", "rating"],   # genre match first, then rating as tiebreaker
+        ascending=[False, False]
     )
-    
+
     df = df.drop(columns=["genre_score"])
-    
-    return df.head(TOP_N_RECOMMENDATIONS)
+
+    return df.head(TOP_N).reset_index(drop=True)
