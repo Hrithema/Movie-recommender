@@ -1,21 +1,36 @@
-from quiz import run_quiz
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from profiles import login_menu, update_watch_history, get_watch_history
 from utils import load_movies, display_recommendations
 from recommender import recommend
 
 def main():
-    # asking user their preferences
-    prefernces = run_quiz()
+    # login
+    prefernces, username = login_menu()
     
     print("\n Loading movies...")
     
     # load the datasets
-    movies = load_movies()
+    try:
+        movies = load_movies()
+    except FileNotFoundError as e:
+        print(f"\n❌  {e}")
+        sys.exit(1)
+        
+    # exclude watched movies only for users with saved history
+    if username:
+        watched = get_watch_history(username)
+        if watched:
+            before = len(movies)
+            movies = movies[~movies["title"].isin(watched)].reset_index(drop=True)
+            
+            excluded = before - len(movies)
+            if excluded:
+                print
     
-    # run recommenation engine
-    results = recommend(movies, prefernces)
     
-    # display results
-    display_recommendations(results)
     
     # offer to run again
     again = input("Would you like to try different preferences? (yes/no): ").strip().lower()

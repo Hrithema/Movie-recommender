@@ -55,7 +55,7 @@ GENRES = [
     "Horror",
     "Mystery",
     "Romance",
-    "Sci-Fi",
+    "Science Fiction",
     "Thriller",
     "Animation",
     "Crime"

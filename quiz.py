@@ -33,12 +33,11 @@ def run_quiz() -> dict:
     # Question 4
     print("\n How much time do you have?")
     prefernces["runtime"] = numbered_menu(
-        {**RUNTIME_OPTIONS , "any" : (0, 9999)},
+        ["short (under 90 min)", "medium (90-130 min)", "long (130+ min)", "any"],
         "Enter number"
     )
-    # Normalising the choise to match our RUNTIME_OPTIONS keys
-    # short (under 90 min) -> short
-    prefernces["runtime"] = prefernces["runtime"].split(" ")[0] 
+    # Normalise "short (under 90 min)" → "short"
+    prefernces["runtime"] = prefernces["runtime"].split(" ")[0]
     
     # Question 5
     print("\n  Do you prefer a happy ending?")

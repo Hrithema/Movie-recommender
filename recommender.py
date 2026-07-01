@@ -2,19 +2,16 @@ import pandas as pd
 from config import RUNTIME_OPTIONS, TOP_N, LANGUAGE, LANGUAGE_MAP
 
 def recommend(movies: pd.DataFrame, preferences: dict) -> pd.DataFrame:
+    
     df = movies.copy()
+    print(f"  [debug] Start: {len(df)} movies")
 
-    # ── Language filter ────────────────────────────────────────────────────────
-    # Quiz returns "English" but TMDB stores "en".
-    # We use LANGUAGE_MAP to convert before comparing.
     if preferences["language"] != "any":
         lang_code = LANGUAGE_MAP.get(preferences["language"], "")
         if lang_code:
             df = df[df["language"] == lang_code]
+    print(f"  [debug] After language filter: {len(df)} movies")
 
-    # ── Runtime filter ─────────────────────────────────────────────────────────
-    # preferences["runtime"] is already normalised to "short"/"medium"/"long"/"any"
-    # by the split(" ")[0] line in quiz.py
     runtime_key = preferences["runtime"]
     if runtime_key in RUNTIME_OPTIONS:
         min_rt, max_rt = RUNTIME_OPTIONS[runtime_key]
@@ -22,7 +19,7 @@ def recommend(movies: pd.DataFrame, preferences: dict) -> pd.DataFrame:
             (pd.to_numeric(df["runtime"], errors="coerce") >= min_rt) &
             (pd.to_numeric(df["runtime"], errors="coerce") <= max_rt)
         ]
-
+    print(f"  [debug] After runtime filter: {len(df)} movies")
     # ── Genre scoring ──────────────────────────────────────────────────────────
     # TMDB "genres" is a list e.g. ["Action", "Adventure"]
     # We count how many of the user's preferred genres appear in each movie.
@@ -51,4 +48,6 @@ def recommend(movies: pd.DataFrame, preferences: dict) -> pd.DataFrame:
 
     df = df.drop(columns=["genre_score"])
 
+    print(f"  [debug] Final results: {len(df.head(TOP_N))} movies")
+    print(f"  [debug] Sample titles: {df['title'].head(3).tolist()}")
     return df.head(TOP_N).reset_index(drop=True)
