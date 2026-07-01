@@ -105,8 +105,8 @@ All tuneable constants live here — no need to dig into other files:
 |---------|--------|----------|
 | TMDB 5000 Movies | [Kaggle](https://www.kaggle.com/datasets/tmdb/tmdb-movie-metadata) | Primary — genres, language, runtime, ratings |
 | TMDB 5000 Credits | Kaggle (same) | Reserved for Phase 6 (cast/director similarity) |
-| Kaggle Movie Metadata | [Kaggle](https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset) | Fallback |
-| IMDB Title Basics | [IMDB Datasets](https://datasets.imdbws.com/) | Last resort |
+| Kaggle Movie Metadata | [Kaggle](https://www.kaggle.com/datasets/ashishkumarjayswal/movies-dataset) | Fallback |
+| IMDB Title Basics | [IMDB Datasets](https://www.kaggle.com/datasets/kunwarakash/imdbdatasets) | Last resort |
 | IMDB Title Ratings | IMDB Datasets | Merged with basics for ratings |
 
 ---
