@@ -48,6 +48,6 @@ def recommend(movies: pd.DataFrame, preferences: dict) -> pd.DataFrame:
 
     df = df.drop(columns=["genre_score"])
 
-    print(f"  [debug] Final results: {len(df.head(TOP_N))} movies")
-    print(f"  [debug] Sample titles: {df['title'].head(3).tolist()}")
+    # print(f"  [debug] Final results: {len(df.head(TOP_N))} movies")
+    # print(f"  [debug] Sample titles: {df['title'].head(3).tolist()}")
     return df.head(TOP_N).reset_index(drop=True)
