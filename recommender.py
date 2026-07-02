@@ -4,13 +4,13 @@ from config import RUNTIME_OPTIONS, TOP_N, LANGUAGE, LANGUAGE_MAP
 def recommend(movies: pd.DataFrame, preferences: dict) -> pd.DataFrame:
     
     df = movies.copy()
-    print(f"  [debug] Start: {len(df)} movies")
+    # print(f"  [debug] Start: {len(df)} movies")
 
     if preferences["language"] != "any":
         lang_code = LANGUAGE_MAP.get(preferences["language"], "")
         if lang_code:
             df = df[df["language"] == lang_code]
-    print(f"  [debug] After language filter: {len(df)} movies")
+    # print(f"  [debug] After language filter: {len(df)} movies")
 
     runtime_key = preferences["runtime"]
     if runtime_key in RUNTIME_OPTIONS:
@@ -19,7 +19,7 @@ def recommend(movies: pd.DataFrame, preferences: dict) -> pd.DataFrame:
             (pd.to_numeric(df["runtime"], errors="coerce") >= min_rt) &
             (pd.to_numeric(df["runtime"], errors="coerce") <= max_rt)
         ]
-    print(f"  [debug] After runtime filter: {len(df)} movies")
+    # print(f"  [debug] After runtime filter: {len(df)} movies")
     # ── Genre scoring ──────────────────────────────────────────────────────────
     # TMDB "genres" is a list e.g. ["Action", "Adventure"]
     # We count how many of the user's preferred genres appear in each movie.
