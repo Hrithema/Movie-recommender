@@ -21,18 +21,42 @@ def main():
         
     # exclude watched movies only for users with saved history
     if username:
-        watched = get_watch_history(username)
+        try:
+            watched = get_watch_history(username)
+        except BaseException as e:
+            print(f" [debug] ERROR in get_watch_history: {e}")
+            watched = set()
         if watched:
             before = len(movies)
             movies = movies[~movies["title"].isin(watched)].reset_index(drop=True)
-            
+                
             excluded = before - len(movies)
             if excluded:
-                print
+                print(f"Excluded {excluded} already-watched movie(s) from results.")
+    # recommend
     
+    try:
+        results = recommend(movies, prefernces)
+    except Exception as e:
+        import traceback
+        print(f"\n  [debug] recommend() crashed:")
+        traceback.print_exc()
+        return
     
+    try:
+        display_recommendations(results)
+    except Exception as e:
+        import traceback
+        print(f"\n  [debug] display_recommendations crashed:")
+        traceback.print_exc()
+    
+    # update watch history
+    if username and not results.empty:
+        recommended_titles = results["title"].tolist()
+        update_watch_history(username, recommended_titles)
     
     # offer to run again
+    print("-"*50)
     again = input("Would you like to try different preferences? (yes/no): ").strip().lower()
     if again in ("yes", "ye", "y"):
         main()
