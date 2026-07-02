@@ -22,7 +22,7 @@ def login_menu()-> tuple[dict, str | None]:
         return _handle_new_user()
     else: #guest
         print("\n Continuing as Guest. Your preferences won't be saved.\n")
-        prefs = run_quiz
+        prefs = run_quiz()
         return prefs, None
     
 # Login flow
@@ -71,7 +71,7 @@ def _handle_new_user() -> tuple[dict, str]:
         if not username.replace("_", "").isalnum():
             print("Invalid username, only letters, numbers and underscores are allowed.")
             continue
-        if profile_exists(username):
+        if _profile_exists(username):
             print(f"{username} already exists. Choose a different username.")
             continue
         break
@@ -139,7 +139,7 @@ def load_profile(username: str) -> dict:
 def _profile_path(username: str) -> str:
     return os.path.join(PROFILES_DIR, f"{username}.json")
 
-def profile_exists(username: str) -> bool:
+def _profile_exists(username: str) -> bool:
     return os.path.exists(_profile_path(username))
 
 def _list_profiles() -> list:
