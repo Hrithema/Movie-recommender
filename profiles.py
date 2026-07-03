@@ -39,11 +39,28 @@ def _handle_login() -> tuple[dict, str]:
         return login_menu()
     
     profile = load_profile(username)
+    
+    history = profile.get("watch_history", {})
+    if isinstance(history, list):
+        watched_count = len(history)
+    else:
+        watched_count = len(history)
+    
+    watch_later = profile.get("watch_later", [])
+    favourites = [ t for t, f in (history.items() if isinstance(history, dict) else[])
+                  if f.get("favourite")]
     print(f"\n Welcome back, {username}!")
     print(f"     Genres:   {', '.join(profile['preferences'].get('genres', [])) or 'None set'}")
     print(f"     Language: {profile['preferences'].get('language', 'any')}")
     print(f"     Runtime:  {profile['preferences'].get('runtime', 'any')}")
     print(f"     Watched:  {len(profile.get('watch_history', []))} movies\n")
+    print(f"     Watch Later: {len(watch_later)} movies")
+    print(f"     Favourites: {len(favourites)} movies\n")
+    
+    # Phase - 4: promt ratings for watch later movies before anything else
+    
+    from feedback import prompt_watchlater_ratings
+    prompt_watchlater_ratings(username)
     
     action = numbered_menu(
         ["Used saved preferences", "Edit preferences"],
@@ -51,7 +68,7 @@ def _handle_login() -> tuple[dict, str]:
     )
     
     if action == "Edit preferences":
-        print("\n Running quiz with your saved answers as a refernce... \n")
+        print("\n Running quiz — your saved answers are shown above for reference.\n")
         profile["preferences"] = run_quiz()
         save_profile(username, profile)
         print(f"\n Preferences updated for {username}")
@@ -61,7 +78,8 @@ def _handle_login() -> tuple[dict, str]:
 # New user flow
 
 def _handle_new_user() -> tuple[dict, str]:
-    print("\n Choose a username (letters and numbers only, no spaces)")
+    print("\n Choose a username (letters, numbers, underscores only):")
+    
     while True:
         username = input("Username: ").strip()
         
@@ -83,14 +101,23 @@ def _handle_new_user() -> tuple[dict, str]:
         "username" : username,
         "preferences" : prefs,
         "watch_history" : [],
+        "watch_later" : [],
     }
     
     save_profile(username, profile)
-    print(f"\n Profile created and saved for {username}!")
+    print(f"\n  ✅ Profile created for {username}!")
     
     return prefs, username
 
 # Watch history
+def get_watch_history(username: str) -> set:
+    profile = load_profile(username)
+    history = profile.get("watch_history", {})
+    if isinstance(history, list):
+        return set(history)
+    return set(history.keys())
+
+
 
 def update_watch_history(username: str, recommended_titles: list) -> None:
     if not recommended_titles:
@@ -125,8 +152,7 @@ def get_watch_history(username: str) -> set:
 
 def save_profile(username: str, profile: dict) -> None:
     os.makedirs(PROFILES_DIR, exist_ok=True)
-    path = _profile_path(username)
-    with open(path, "w") as f:
+    with open(_profile_path(username), "w") as f:
         json.dump(profile, f, indent=2)
         
 def load_profile(username: str) -> dict:
@@ -147,3 +173,6 @@ def _list_profiles() -> list:
         return[]
     files = [f for f in os.listdir(PROFILES_DIR) if f.endswith(".json")]
     return sorted([f.replace(".json", "") for f in files])
+
+def update_watch_history(username: str, recommended_titles: list) -> None:
+    pass

@@ -2,9 +2,10 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from profiles import login_menu, update_watch_history, get_watch_history
+from profiles import login_menu, get_watch_history
 from utils import load_movies, display_recommendations
 from recommender import recommend
+from feedback import add_to_watch_later, prompt_seen_ratings
 
 def main():
     # login
@@ -21,42 +22,37 @@ def main():
         
     # exclude watched movies only for users with saved history
     if username:
-        try:
-            watched = get_watch_history(username)
-        except BaseException as e:
-            print(f" [debug] ERROR in get_watch_history: {e}")
-            watched = set()
+        
+        watched = get_watch_history(username)
         if watched:
             before = len(movies)
             movies = movies[~movies["title"].isin(watched)].reset_index(drop=True)
-                
             excluded = before - len(movies)
             if excluded:
                 print(f"Excluded {excluded} already-watched movie(s) from results.")
     # recommend
     
-    try:
-        results = recommend(movies, prefernces)
-    except Exception as e:
-        import traceback
-        print(f"\n  [debug] recommend() crashed:")
-        traceback.print_exc()
-        return
+    results = recommend(movies, prefernces)
     
-    try:
-        display_recommendations(results)
-    except Exception as e:
-        import traceback
-        print(f"\n  [debug] display_recommendations crashed:")
-        traceback.print_exc()
+    # Display
+    display_recommendations(results)
     
-    # update watch history
-    if username and not results.empty:
-        recommended_titles = results["title"].tolist()
-        update_watch_history(username, recommended_titles)
+    if not results.empty and username:
+        titles = results["title"].tolist()
+    
+    # watch later
+    add_to_watch_later(username, titles)
+    
+    # already seen? collect feedback
+    prompt_seen_ratings(username, titles)
+    
+    # # update watch history
+    # if username and not results.empty:
+    #     recommended_titles = results["title"].tolist()
+    #     update_watch_history(username, recommended_titles)
     
     # offer to run again
-    print("-"*50)
+    print("\n"+"-"*50)
     again = input("Would you like to try different preferences? (yes/no): ").strip().lower()
     if again in ("yes", "ye", "y"):
         main()
