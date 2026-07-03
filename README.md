@@ -116,7 +116,7 @@ All tuneable constants live here — no need to dig into other files:
 - [x] **Phase 1** — CLI quiz + rule-based filtering ← *you are here*
 - [x] **Phase 2** — User profiles (save preferences to JSON)
 - [x] **Phase 3** — Watch history (don't recommend already-watched movies)
-- [ ] **Phase 4** — Ratings and feedback (likes, dislikes, favourites)
+- [x] **Phase 4** — Ratings and feedback (likes, dislikes, favourites)
 - [ ] **Phase 5** — Scoring engine (weighted points per signal)
 - [ ] **Phase 6** — Similar movie recommendations (content-based)
 - [ ] **Phase 7** — Machine learning (collaborative filtering, TF-IDF)
