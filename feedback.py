@@ -6,6 +6,7 @@ def add_to_watch_later(username:str, recommended_titles: list)-> None:
     if not recommended_titles:
         return
     print("\n Which of these do you want to watch?")
+    print("-"*50+"\n")
     options = recommended_titles+ ["None of these"]
     selected = multi_select_menu(options, "Enter numbers (e.g. 1,3)")
     
@@ -19,6 +20,7 @@ def add_to_watch_later(username:str, recommended_titles: list)-> None:
     save_profile(username, profile)
     
     print(f"\n ✅ Added {len(selected)} movie(s) to your Watch Later list.")
+    print("-"*50+"\n")
     
     # Login time rating prompt
 def prompt_watchlater_ratings(username:str) ->None:
@@ -27,18 +29,20 @@ def prompt_watchlater_ratings(username:str) ->None:
         
     if not watch_later:
         return
+    print("-"*50)
     print(f"\n 📋  You have {len(watch_later)} movie(s) on your Watch Later list:")
-    
+    print("-"*50+"\n")
     for i, title in enumerate(watch_later, 1):
         print(f"       {i}. {title}")
-        
+    
+    print("\n"+"-"*50)
     answer = numbered_menu(["Yes", "No"], "Have you watched any of these?")
     
     if answer == "No":
         return
     
     options = watch_later + ["Done"]
-    watched_now = multi_select_menu(options, "Which ones did you watch? (e.g. 1,3)")
+    watched_now = multi_select_menu(options, "\nWhich ones did you watch? (e.g. 1,3)")
     watched_now = [w for w in watched_now if w != "Done"]
     
     if not watched_now:
@@ -61,8 +65,9 @@ def prompt_watchlater_ratings(username:str) ->None:
     def prompt_seen_ratings(username: str, recommended_titles: list) -> None:
         if not recommended_titles:
             return
-        
+        print("\n"+"-"*50)
         print("\n 👀  Have you already seen any of these?")
+        print("-"*50+"\n")
         options = recommended_titles + ["None of these"]
         seen = multi_select_menu(options, "Enter numbers (e.g. 1,3)")
         seen = [s for s in seen if s != "None of these"]
@@ -108,13 +113,15 @@ def prompt_seen_ratings(username: str, recommeded_titles: list) -> None:
     
     profile["watch_history"] = watch_history
     save_profile(username, profile)
-    print(f"\n ✅ Saved your feedback for {len(seen)} movie(s).")
+    print(f"-"*50+"\n ✅ Saved your feedback for {len(seen)} movie(s).\n")
     
     
 # Feedback collector
 
 def _collect_feedback(title:str) -> dict:
-    print("     ⭐  Rate it:")
+    print("\n"+"-"*50)
+    print("\n     ⭐  Rate it:")
+    print("-"*50+"\n")
     rating_choice = numbered_menu(
         ["★★★★★  (5 — Amazing)",
          "★★★★☆  (4 — Great)",
@@ -133,14 +140,14 @@ def _collect_feedback(title:str) -> dict:
     }
     rating = star_map.get(rating_choice, 3)
     
-    print("       👍  Did you like it?")
+    print("\n       👍  Did you like it?\n"+"-"*50)
     
-    liked_choice = numbered_menu(["👍  Like", "👎  Dislike", "👎  Dislike"], "Enter number")
+    liked_choice = numbered_menu(["👍  Like", "👎  Dislike"], "Enter number")
     liked = liked_choice == "👍  Like"
     
-    print("     ❤️   Add to favourites?")
-    fav_choice = numbered_menu(["❤️   Yes", "No"], "Enter number")
-    favourtie = fav_choice == "❤️   Yes"
+    print("-"*50+"\n     ❤️   Add to favourites?"+"\n"+"-"*50)
+    fav_choice = numbered_menu(["Yes", "No"], "Enter number")
+    favourtie = fav_choice == "Yes"
     
     return{
         "rating" : rating,
