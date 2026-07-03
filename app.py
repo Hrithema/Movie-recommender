@@ -22,7 +22,6 @@ def main():
         
     # exclude watched movies only for users with saved history
     if username:
-        
         watched = get_watch_history(username)
         if watched:
             before = len(movies)
@@ -32,8 +31,8 @@ def main():
                 print(f"Excluded {excluded} already-watched movie(s) from results.")
     # recommend
     
-    results = recommend(movies, prefernces)
-    
+    results = recommend(movies, prefernces, username=username)
+
     # Display
     display_recommendations(results)
     
@@ -41,10 +40,10 @@ def main():
         titles = results["title"].tolist()
     
     # watch later
-    add_to_watch_later(username, titles)
+        add_to_watch_later(username, titles)
     
     # already seen? collect feedback
-    prompt_seen_ratings(username, titles)
+        prompt_seen_ratings(username, titles)
     
     # # update watch history
     # if username and not results.empty:
