@@ -113,7 +113,7 @@ def prompt_seen_ratings(username: str, recommeded_titles: list) -> None:
     
     profile["watch_history"] = watch_history
     save_profile(username, profile)
-    print(f"-"*50+"\n ✅ Saved your feedback for {len(seen)} movie(s).\n")
+    print(f"-"*50+ f"\n ✅ Saved your feedback for {len(seen)} movie(s).\n")
     
     
 # Feedback collector
